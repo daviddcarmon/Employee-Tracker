@@ -10,11 +10,13 @@ USE company_asset_db;
 -- DROP TABLE company_asset_db.employee
 -- GO
 -- Create the table in the specified schema
-CREATE TABLE employee
+CREATE TABLE employees
 (
     employeeId INT NOT NULL AUTO_INCREMENT PRIMARY KEY, -- primary key column,
     first_name varchar(50) NOT NULL, -- NVACHAR can store any Unicode(symblos) data
     last_name varchar(50) NOT NULL
+    role.roleId INT FOREIGN KEY
+    manager.roleId INT FOREIGN KEY
 );
 
 
@@ -28,8 +30,9 @@ CREATE TABLE employee
 CREATE TABLE role
 (
     roleId INT NOT NULL AUTO_INCREMENT PRIMARY KEY, -- primary key column,
-    tile INT NOT NULL, -- NVACHAR can store any Unicode(symblos) data
-    salary INT NOT NULL
+    title INT NOT NULL, -- NVACHAR can store any Unicode(symblos) data
+    salary DECIMAL(10,2) NOT NULL
+    department.departmentId INT FOREIGN KEY
 );
 
 
@@ -42,6 +45,18 @@ CREATE TABLE role
 CREATE TABLE department
 (
     departmentId INT NOT NULL AUTO_INCREMENT PRIMARY KEY, -- primary key column,
-    tile INT NOT NULL, -- NVACHAR can store any Unicode(symblos) data
-    salary DECIMAL(10,2) NOT NULL
+    department VARCHAR(50) NOT NULL, -- NVACHAR can store any Unicode(symblos) data
 );
+
+
+select * from employees;
+select * from role;
+select * from department;
+
+insert into department (department)
+value("Sales Lead"),("Salesperson"),("Lead Engineer"),
+("Software Engineer"),("Account Manager"),("Accountant"),
+("Legal Team Lead"),("Legal Team");
+
+insert into employees 
+set first_name = "david", last_name = "carmona";

@@ -13,7 +13,8 @@ const connection = mysql.createConnection({
 
 connection.connect((err) => {
   if (err) throw err;
-  console.log(`Listening on http://localhost:3306`);
+  // console.log(`Listening on http://localhost:3306`);
+  start();
 });
 
 const start = () => {
@@ -27,6 +28,7 @@ const start = () => {
           "View ALL Employees by Departments",
           "View ALL Employees by Manager",
           "Add Employee",
+          "Exit",
         ],
         name: "action",
       },
@@ -38,9 +40,19 @@ const start = () => {
         case "View ALL Employees by Departments":
           return byDepartment();
         case "View ALL Employees by Manager":
-          return byManager;
+          return byManager();
+        case "Add Employee":
+          return insertEmployee();
+        case "Remove Employee":
+          return dropEmployee();
+        case "Update Employee":
+          return updateEmployee();
+        case "Update Employee Role":
+          return updateRole();
+        case "Update Employee Manager":
+          return updateManager();
         default:
-          return;
+          return connection.end();
       }
     });
 };
@@ -49,6 +61,96 @@ const start = () => {
 //VIEW ALL EMPLOYEES\\
 const allEmployees = () => {
   connection.query("select * from employees", (err, data) => {
-    allEmployees.map();
+    // data.send(employees);
+    console.table(data);
   });
+};
+
+//VIEW BY DEPARTMENT\\
+const byDepartment = () => {
+  connection.query(
+    "select * from employees where ?",
+    { name: data.department },
+    (err, data) => {
+      console.table(data);
+    }
+  );
+};
+
+//VIEW BY MANAGEMENT\\
+const byManager = () => {
+  connection.query(
+    "select * from employees where ?",
+    { name: data.manager },
+    (err, data) => {
+      console.table(data);
+    }
+  );
+};
+
+//ADD EMPLOYEE
+const insertEmployee = () => {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What's the Employees first name?",
+        name: "first_name",
+        validate: confirmEmpty,
+      },
+      {
+        type: "input",
+        message: "What's the Employees last name?",
+        name: "last_name",
+        validate: confirmEmpty,
+      },
+      {
+        type: "list",
+        message: "What is there role?",
+        choices: [
+          "Sales Lead",
+          "Salesperson",
+          "Lead Engineer",
+          "Software Engineer",
+          "Account Manager",
+          "Accountant",
+          "Legal Team Lead",
+          "Legal Team",
+        ],
+        name: "role",
+      },
+    ])
+    .then(() => {
+      connection.query(
+        "insert into employees set ?",
+        {
+          first_name: data.first_name,
+          last_name: data.last_name,
+          role: data.role,
+        },
+        (err, data) => {
+          console.log(
+            `${data.first_name} ${data.last_name} was added to Employees Table`
+          );
+        }
+      );
+    });
+};
+
+/// VALIDATION \\\
+const confirmNumber = async (input) => {
+  input = parseInt(input);
+  if (isNaN(input) || input < 0) {
+    return `Expected parameter to be a number greater than zero`;
+  } else {
+    return true;
+  }
+};
+
+const confirmEmpty = async (input) => {
+  if (input === "") {
+    return `Parameter cannot be empty`;
+  } else {
+    return true;
+  }
 };
