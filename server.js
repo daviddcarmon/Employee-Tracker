@@ -25,16 +25,20 @@ const start = () => {
         message: "What would you like to do?",
         choices: [
           "View ALL Employees",
-          "View ALL Employees by Departments",
           "View ALL Employees by Manager",
+          "View ALL Employees by Departments",
           "Add Employee",
+          "Remove Employee",
+          "Update Employee",
+          "Update Employee Role",
+          "Update Employee Manager",
           "Exit",
         ],
         name: "action",
       },
     ])
     .then((answer) => {
-      switch (answer) {
+      switch (answer.action) {
         case "View ALL Employees":
           return allEmployees();
         case "View ALL Employees by Departments":
@@ -60,9 +64,11 @@ const start = () => {
 ////// FUNCTIONS \\\\\\
 //VIEW ALL EMPLOYEES\\
 const allEmployees = () => {
-  connection.query("select * from employees", (err, data) => {
+  connection.query("SELECT * FROM employees", (err, data) => {
+    if (err) throw err;
     // data.send(employees);
     console.table(data);
+    start();
   });
 };
 
@@ -108,25 +114,29 @@ const insertEmployee = () => {
         type: "list",
         message: "What is there role?",
         choices: [
-          "Sales Lead",
-          "Salesperson",
-          "Lead Engineer",
-          "Software Engineer",
-          "Account Manager",
           "Accountant",
+          "Account Manager",
+          "Lead Engineer",
           "Legal Team Lead",
           "Legal Team",
+          "Sales Lead",
+          "Salesperson",
+          "Software Engineer",
         ],
         name: "role",
       },
+      // {
+      //   message: "Who is the Employee's Manager?",
+      //   choices: [queryManagers],
+      // },
     ])
-    .then(() => {
+    .then((data) => {
       connection.query(
         "insert into employees set ?",
         {
           first_name: data.first_name,
           last_name: data.last_name,
-          role: data.role,
+          // roleId_FK: data.role, /// need to be the array key not the string
         },
         (err, data) => {
           console.log(
@@ -136,6 +146,59 @@ const insertEmployee = () => {
       );
     });
 };
+
+//REMOVE EMPLOYEE
+const dropEmployee = () => {
+  inquirer
+    .prompt([
+      {
+        message: "What Employee would you like to remove?",
+        choices: [employees],
+        name: "employee",
+      },
+    ])
+    .then((data) => {
+      connection.query(
+        "drop ? from employees",
+        { employee: data.employee },
+        (err, data) => {
+          console.log(`${data.employee} was removed from database`);
+        }
+      );
+    });
+};
+
+//UPDATE EMPLOYEE
+const updateEmployee = () => {
+  inquirer
+    .prompt([
+      {
+        message: "What Employee would you like to update?",
+        choices: [],
+        name: "employee",
+      },
+      {
+        message: "What would you like to update on this Employee",
+        choices: ["Name", "Department", "Manager", "Salary"],
+        name: "action",
+        validate: confirmUpdate,
+      },
+    ])
+    .then((data) => {
+      connection.query("update employees set ? where ?", [
+        {
+          first_name: "",
+          last_name: "",
+          roleId_FK: "",
+          managerId_FK: "",
+        },
+        { employeeId: data.employee },
+      ]);
+    });
+};
+
+//// WRITE UPDATE FUNCTIONS \\\\\
+updateName
 
 /// VALIDATION \\\
 const confirmNumber = async (input) => {
@@ -152,5 +215,20 @@ const confirmEmpty = async (input) => {
     return `Parameter cannot be empty`;
   } else {
     return true;
+  }
+};
+
+const confirmUpdate = async (data) => {
+  if (data.action === "Name") {
+    updateName();
+  }
+  if (data.action === "Department") {
+    updateDepartment();
+  }
+  if (data.action === "Manager") {
+    updateManager();
+  }
+  if (data.action === "Salary") {
+    updateSalary();
   }
 };

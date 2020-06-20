@@ -4,19 +4,16 @@ CREATE DATABASE company_asset_db;
 
 USE company_asset_db;
 
--- Create a new table called 'employee' in schema 'company_asset_db'
+-- Create a new table called 'department' in schema 'company_asset_db'
 -- Drop the table if it already exists
--- IF OBJECT_ID('company_asset_db.employee', 'U') IS NOT NULL
--- DROP TABLE company_asset_db.employee
--- GO
+-- IF OBJECT_ID('company_asset_db.department', 'U') IS NOT NULL
+-- DROP TABLE company_asset_db.department
+-- 
 -- Create the table in the specified schema
-CREATE TABLE employees
+CREATE TABLE department
 (
-    employeeId INT NOT NULL AUTO_INCREMENT PRIMARY KEY, -- primary key column,
-    first_name varchar(50) NOT NULL, -- NVACHAR can store any Unicode(symblos) data
-    last_name varchar(50) NOT NULL
-    role.roleId INT FOREIGN KEY
-    manager.roleId INT FOREIGN KEY
+    departmentId INT NOT NULL AUTO_INCREMENT PRIMARY KEY, -- primary key column,
+    department VARCHAR(50) NOT NULL -- NVACHAR can store any Unicode(symblos) data
 );
 
 
@@ -31,21 +28,27 @@ CREATE TABLE role
 (
     roleId INT NOT NULL AUTO_INCREMENT PRIMARY KEY, -- primary key column,
     title INT NOT NULL, -- NVACHAR can store any Unicode(symblos) data
-    salary DECIMAL(10,2) NOT NULL
-    department.departmentId INT FOREIGN KEY
+    salary DECIMAL(10,2) NOT NULL,
+    departmentId_FK INT,
+    FOREIGN KEY (departmentId_FK) REFERENCES department(departmentId)
 );
 
-
--- Create a new table called 'department' in schema 'company_asset_db'
+-- Create a new table called 'employee' in schema 'company_asset_db'
 -- Drop the table if it already exists
--- IF OBJECT_ID('company_asset_db.department', 'U') IS NOT NULL
--- DROP TABLE company_asset_db.department
--- 
+-- IF OBJECT_ID('company_asset_db.employee', 'U') IS NOT NULL
+-- DROP TABLE company_asset_db.employee
+-- GO
 -- Create the table in the specified schema
-CREATE TABLE department
+CREATE TABLE employees
 (
-    departmentId INT NOT NULL AUTO_INCREMENT PRIMARY KEY, -- primary key column,
-    department VARCHAR(50) NOT NULL, -- NVACHAR can store any Unicode(symblos) data
+    employeeId INT NOT NULL AUTO_INCREMENT PRIMARY KEY, -- primary key column,
+    first_name VARCHAR(50) NOT NULL, -- NVACHAR can store any Unicode(symblos) data
+    last_name VARCHAR(50) NOT NULL,
+    roleId_FK INT,
+    managerId_FK INT,
+    FOREIGN KEY (roleId_FK)  REFERENCES role(roleId)
+    -- CONSTRAINT FK_roleId FOREIGN KEY (roleId) REFERENCES role(roleId),
+    -- FOREIGN KEY (managerId_FK) REFERENCES employees(roleId)
 );
 
 
@@ -60,3 +63,4 @@ value("Sales Lead"),("Salesperson"),("Lead Engineer"),
 
 insert into employees 
 set first_name = "david", last_name = "carmona";
+
