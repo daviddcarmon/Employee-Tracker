@@ -56,11 +56,17 @@ select * from employees;
 select * from role;
 select * from department;
 
+
 insert into department (department)
-value("Sales Lead"),("Salesperson"),("Lead Engineer"),
-("Software Engineer"),("Account Manager"),("Accountant"),
-("Legal Team Lead"),("Legal Team");
+value("Accountant"),("Account Manager"),
+("Lead Engineer"),("Legal Team Lead"),("Legal Team"),
+("Software Engineer"),("Sales Lead"),("Salesperson");
 
 insert into employees 
-set first_name = "david", last_name = "carmona";
+set first_name = "david", last_name = "carmona", roleId_FK = 1;
 
+select * from employees
+join department on employees.roleID_FK = department.departmentId
+join role on employees.roleId_FK = role.roleID;
+
+select * from employees where 1 = employees.roleId_FK

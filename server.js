@@ -2,6 +2,9 @@ const inquirer = require("inquirer");
 const mysql = require("mysql");
 const express = require("express");
 const Employee = require("../Employee-Registration/lib/Employee");
+const util = require("util");
+const fs = require("fs");
+const writeFileAsync = util.promisify(fs.writeFile);
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -15,6 +18,7 @@ connection.connect((err) => {
   if (err) throw err;
   // console.log(`Listening on http://localhost:3306`);
   start();
+  // queryManager();
 });
 
 const start = () => {
@@ -62,20 +66,24 @@ const start = () => {
 };
 
 ////// FUNCTIONS \\\\\\
-//VIEW ALL EMPLOYEES\\
+///VIEW ALL EMPLOYEES\\\\
+/////TESTED WORKING\\\\\\\
 const allEmployees = () => {
-  connection.query("SELECT * FROM employees", (err, data) => {
-    if (err) throw err;
-    // data.send(employees);
-    console.table(data);
-    start();
-  });
+  connection.query(
+    "SELECT employeeid, first_name, last_name FROM employees",
+    (err, data) => {
+      if (err) throw err;
+      // data.send(employees);
+      console.table(data);
+      start();
+    }
+  );
 };
 
 //VIEW BY DEPARTMENT\\
 const byDepartment = () => {
   connection.query(
-    "select * from employees where ?",
+    "select * from employees where ? = departmentId_FK",
     { name: data.department },
     (err, data) => {
       console.table(data);
@@ -86,7 +94,7 @@ const byDepartment = () => {
 //VIEW BY MANAGEMENT\\
 const byManager = () => {
   connection.query(
-    "select * from employees where ?",
+    "select * from employees where ? = employees.managerId_FK",
     { name: data.manager },
     (err, data) => {
       console.table(data);
@@ -94,8 +102,23 @@ const byManager = () => {
   );
 };
 
-//ADD EMPLOYEE
+///ADD EMPLOYEE\\
+//TESTED WORKING\\
+//NEED FIX TO ROLE\
 const insertEmployee = () => {
+  const companyListManager = [];
+  let query = "select first_name, last_name, from employee";
+
+  // connection.query(query, (err, names) => {
+  //   if (err) throw err;
+  //   companyList.concat(data);
+
+  //   console.log(names);
+  //   names.map((name) => {
+  //     console.log(name.first_name);
+  //   });
+  // });
+
   inquirer
     .prompt([
       {
@@ -110,24 +133,26 @@ const insertEmployee = () => {
         name: "last_name",
         validate: confirmEmpty,
       },
-      {
-        type: "list",
-        message: "What is there role?",
-        choices: [
-          "Accountant",
-          "Account Manager",
-          "Lead Engineer",
-          "Legal Team Lead",
-          "Legal Team",
-          "Sales Lead",
-          "Salesperson",
-          "Software Engineer",
-        ],
-        name: "role",
-      },
+      // {
+      //   type: "list",
+      //   message: "What is there role?",
+      //   // can you figure our how to use department TABLE for choices
+      //   choices: [
+      //     "Accountant",
+      //     "Account Manager",
+      //     "Lead Engineer",
+      //     "Legal Team Lead",
+      //     "Legal Team",
+      //     "Sales Lead",
+      //     "Salesperson",
+      //     "Software Engineer",
+      //   ],
+      //   name: "role",
+      // },
       // {
       //   message: "Who is the Employee's Manager?",
-      //   choices: [queryManagers],
+      //   choices: companyListManager + ["Add Manager"],
+      //   validate: addManager,
       // },
     ])
     .then((data) => {
@@ -149,11 +174,27 @@ const insertEmployee = () => {
 
 //REMOVE EMPLOYEE
 const dropEmployee = () => {
+  let query = "select first_name, last_name, from employee";
+  let companyList = [];
+  connection.query(query, (err, names) => {
+    if (err) throw err;
+    // companyList.concat(data);
+
+    console.log(names);
+    // Should this be a for(const name of name)
+    names.map((name) => {
+      console.log(name.first_name);
+      let newName = {};
+      newName.push(name.first_name, name.last_name);
+      companyList.push(newName);
+    });
+  });
+
   inquirer
     .prompt([
       {
         message: "What Employee would you like to remove?",
-        choices: [employees],
+        choices: companyList,
         name: "employee",
       },
     ])
@@ -174,7 +215,7 @@ const updateEmployee = () => {
     .prompt([
       {
         message: "What Employee would you like to update?",
-        choices: [],
+        // choices: employeesArray,
         name: "employee",
       },
       {
@@ -198,7 +239,35 @@ const updateEmployee = () => {
 };
 
 //// WRITE UPDATE FUNCTIONS \\\\\
-updateName
+// updateName();
+// updateManager();
+// updateDepartment();
+// updateSalary();
+
+// addManager() - line 146
+const addManager = async (role) => {
+  if (role === "Add Manager") {
+    insertEmployee();
+  }
+};
+
+//// QUERY FOR USER LIST \\\\
+const companyList = [];
+const companyListManager = [];
+const employeesArray = [...companyList];
+const managersArray = [...companyListManager];
+
+// map
+let queryManager = () => {
+  createConnection.query(query, (err, data) => {
+    if (err) throw err;
+    // companyList.concat(data);
+    console.log(`Connected`);
+    names.map((name) => {
+      console.log(name.first_name);
+    });
+  });
+};
 
 /// VALIDATION \\\
 const confirmNumber = async (input) => {
