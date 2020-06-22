@@ -106,19 +106,6 @@ const byManager = () => {
 //TESTED WORKING\\
 //NEED FIX TO ROLE\
 const insertEmployee = () => {
-  const companyListManager = [];
-  let query = "select first_name, last_name, from employee";
-
-  // connection.query(query, (err, names) => {
-  //   if (err) throw err;
-  //   companyList.concat(data);
-
-  //   console.log(names);
-  //   names.map((name) => {
-  //     console.log(name.first_name);
-  //   });
-  // });
-
   inquirer
     .prompt([
       {
@@ -151,7 +138,7 @@ const insertEmployee = () => {
       // },
       // {
       //   message: "Who is the Employee's Manager?",
-      //   choices: companyListManager + ["Add Manager"],
+      //   choices: companyListManager,
       //   validate: addManager,
       // },
     ])
@@ -169,27 +156,12 @@ const insertEmployee = () => {
           );
         }
       );
+      start();
     });
 };
 
 //REMOVE EMPLOYEE
 const dropEmployee = () => {
-  let query = "select first_name, last_name, from employee";
-  let companyList = [];
-  connection.query(query, (err, names) => {
-    if (err) throw err;
-    // companyList.concat(data);
-
-    console.log(names);
-    // Should this be a for(const name of name)
-    names.map((name) => {
-      console.log(name.first_name);
-      let newName = {};
-      newName.push(name.first_name, name.last_name);
-      companyList.push(newName);
-    });
-  });
-
   inquirer
     .prompt([
       {
@@ -211,6 +183,12 @@ const dropEmployee = () => {
 
 //UPDATE EMPLOYEE
 const updateEmployee = () => {
+  // connection.query("select * from employees", (err, names) => {
+  //   let newArray = names.map((name) => {
+  //     return name.first_name + " " + name.last_name;
+  //   });
+  //   console.log(newArray);
+  // });
   inquirer
     .prompt([
       {
@@ -226,48 +204,119 @@ const updateEmployee = () => {
       },
     ])
     .then((data) => {
-      connection.query("update employees set ? where ?", [
-        {
-          first_name: "",
-          last_name: "",
-          roleId_FK: "",
-          managerId_FK: "",
-        },
-        { employeeId: data.employee },
+      switch (data.action) {
+        case "Name":
+          return updateName();
+        case "Department":
+          return updateDepartment();
+        case "Manager":
+          return updateManager();
+        case "Salary":
+          return updateSalary();
+      }
+    });
+};
+
+const updateName = () => {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What is this employees new First Name?",
+        name: "firstName",
+      },
+      {
+        type: "input",
+        message: "What is this employees new Last Name?",
+        name: "lastName",
+      },
+    ])
+    .then((data) => {
+      connection.query("update employees set ? where employeeId = ?", [
+        { first_name: data.firstName, last_name: data.lastName },
+        { employeeId: data.employeeId },
       ]);
     });
 };
 
+const updateManager = () => {
+  inquirer
+    .prompt([
+      {
+        message: "Who is the Employee's new Manager?",
+        type: "list",
+        choices: managersArray,
+        name: "action",
+      },
+    ])
+    .then((data) => {
+      if (data.action === "Add Manager") {
+        insertEmployee();
+      }
+    });
+};
+
 //// WRITE UPDATE FUNCTIONS \\\\\
-// updateName();
 // updateManager();
 // updateDepartment();
 // updateSalary();
 
-// addManager() - line 146
+// addManager() - line 155
 const addManager = async (role) => {
   if (role === "Add Manager") {
     insertEmployee();
   }
 };
 
-//// QUERY FOR USER LIST \\\\
-const companyList = [];
-const companyListManager = [];
-const employeesArray = [...companyList];
-const managersArray = [...companyListManager];
+// connection.query("update employees set ? where ?", [
+//   {
+//     first_name: "",
+//     last_name: "",
+//     roleId_FK: "",
+//     managerId_FK: "",
+//   },
+//   { employeeId: data.employee },
+// ]);
 
-// map
-let queryManager = () => {
-  createConnection.query(query, (err, data) => {
-    if (err) throw err;
-    // companyList.concat(data);
-    console.log(`Connected`);
-    names.map((name) => {
-      console.log(name.first_name);
-    });
+//// QUERY FOR USER LIST \\\\
+// const companyList = [];
+// const companyListManager = [...queryManager, "Add Manager"];
+// const employeesArray = [...companyList];
+// const managersArray = [...companyListManager];
+
+connection.query("select * from employees", (err, names) => {
+  let newEmployees = names.map((name) => {
+    return name.first_name + " " + name.last_name;
   });
-};
+  console.log(newEmployees);
+});
+
+//// MANAGER QUERY \\\\
+let managerQuery = []
+let query = "select first_name, last_name from employee where managerId_FK is null;";
+
+// connection.query("select first_name, last_name from employee where managerId_FK is null;", (err, names) => {
+//   if (err) throw err;
+//   let newManager = names.map((name) => {
+//     return name.first_name + " " + name.last_name;
+//   });
+//   console.log(newManager);
+// });
+
+// map or filer if managerId_FK is NULL
+// let queryManager = () => {
+//   let query =
+//     "select first_name, last_name from employee where managerId_FK is null;";
+//   createConnection.query(query, (err, data) => {
+//     if (err) throw err;
+//     companyList.concat(data);
+//     console.log(data);
+//     console.log(`Connected`);
+//     names.map((name) => {
+//       console.log(name.first_name);
+//     });
+//   });
+// };
 
 /// VALIDATION \\\
 const confirmNumber = async (input) => {
