@@ -160,7 +160,7 @@ const insertEmployee = () => {
   });
 };
 
-//REMOVE EMPLOYEE
+////// REMOVE EMPLOYEE \\\\\\
 const dropEmployee = () => {
   connection.query("select * from employees", (err, names) => {
     let employeesArray = names.map((name) => {
@@ -178,9 +178,9 @@ const dropEmployee = () => {
       .then((data) => {
         let dropId = data.employee.split(" ");
         connection.query(
-          "delete from employees where employeeId = ?",
+          "delete from employees where ?",
           {
-            employeeId: dropId[0],
+            employeeId: parseInt(dropId[0]),
           },
           (err, data) => {
             console.log(`${dropId[1]} ${dropId[2]} was removed from database`);
