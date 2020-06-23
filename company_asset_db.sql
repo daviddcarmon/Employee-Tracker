@@ -56,17 +56,22 @@ select * from employees;
 select * from role;
 select * from department;
 
-
+-- ADDING LIST OF DEPARTMENT FOR STARTER CODE AND TESTING
 insert into department (department)
 value("Accountant"),("Account Manager"),
 ("Lead Engineer"),("Legal Team Lead"),("Legal Team"),
 ("Software Engineer"),("Sales Lead"),("Salesperson");
 
+-- ADDING LIST OF EMPLOYEE FOR STARTER CODE AND TESTING
 insert into employees 
-set first_name = "david", last_name = "carmona", roleId_FK = 1;
+set first_name = "John", last_name = "Smith", roleId_FK = 1;
 
+-- JOINING ALL TABLES THAT CONTAIN VALUES(INNER JOIN)
 select * from employees
 join department on employees.roleID_FK = department.departmentId
 join role on employees.roleId_FK = role.roleID;
 
 select * from employees where 1 = employees.roleId_FK
+
+-- SELECTING EMPLOYEES THAT HAVE A MANAGER
+select first_name, last_name from employee where managerId_FK is null;
