@@ -27,7 +27,7 @@ CREATE TABLE department
 CREATE TABLE role
 (
     roleId INT NOT NULL AUTO_INCREMENT PRIMARY KEY, -- primary key column,
-    title INT NOT NULL, -- NVACHAR can store any Unicode(symblos) data
+    title VARCHAR(50) NOT NULL, -- NVACHAR can store any Unicode(symblos) data
     salary DECIMAL(10,2) NOT NULL,
     departmentId_FK INT,
     FOREIGN KEY (departmentId_FK) REFERENCES department(departmentId)

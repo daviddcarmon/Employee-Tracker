@@ -4,6 +4,7 @@ const express = require("express");
 const Employee = require("../Employee-Registration/lib/Employee");
 const util = require("util");
 const fs = require("fs");
+const { resolveAny } = require("dns");
 const writeFileAsync = util.promisify(fs.writeFile);
 
 const connection = mysql.createConnection({
@@ -87,6 +88,7 @@ const byDepartment = () => {
     { name: data.department },
     (err, data) => {
       console.table(data);
+      start();
     }
   );
 };
@@ -106,115 +108,127 @@ const byManager = () => {
 //TESTED WORKING\\
 //NEED FIX TO ROLE\
 const insertEmployee = () => {
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        message: "What's the Employees first name?",
-        name: "first_name",
-        validate: confirmEmpty,
-      },
-      {
-        type: "input",
-        message: "What's the Employees last name?",
-        name: "last_name",
-        validate: confirmEmpty,
-      },
-      // {
-      //   type: "list",
-      //   message: "What is there role?",
-      //   // can you figure our how to use department TABLE for choices
-      //   choices: [
-      //     "Accountant",
-      //     "Account Manager",
-      //     "Lead Engineer",
-      //     "Legal Team Lead",
-      //     "Legal Team",
-      //     "Sales Lead",
-      //     "Salesperson",
-      //     "Software Engineer",
-      //   ],
-      //   name: "role",
-      // },
-      // {
-      //   message: "Who is the Employee's Manager?",
-      //   choices: companyListManager,
-      //   validate: addManager,
-      // },
-    ])
-    .then((data) => {
-      connection.query(
-        "insert into employees set ?",
-        {
-          first_name: data.first_name,
-          last_name: data.last_name,
-          // roleId_FK: data.role, /// need to be the array key not the string
-        },
-        (err, data) => {
-          console.log(
-            `${data.first_name} ${data.last_name} was added to Employees Table`
-          );
-        }
-      );
-      start();
+  connection.query("select roleId, title from role;", (err, data) => {
+    let roleArray = data.map((name) => {
+      return `${name.roleId} ${name.title}`;
     });
+
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          message: "What's the Employees first name?",
+          name: "first_name",
+          validate: confirmEmpty,
+        },
+        {
+          type: "input",
+          message: "What's the Employees last name?",
+          name: "last_name",
+          validate: confirmEmpty,
+        },
+        {
+          type: "list",
+          message: "What is there role?",
+          // can you figure our how to use department TABLE for choices
+          choices: roleArray,
+          name: "role",
+        },
+        // {
+        //   message: "Who is the Employee's Manager?",
+        //   choices: companyListManager,
+        //   validate: addManager,
+        // },
+      ])
+      .then((data) => {
+        let role = data.role.split(" ");
+        connection.query(
+          "insert into employees set ?",
+          {
+            first_name: data.first_name,
+            last_name: data.last_name,
+            roleId_FK: parseInt(role), /// need to be the array key not the string roleId_FK: data.role,
+          },
+          (err, data) => {
+            console.log(
+              `${data.first_name} ${data.last_name} was added to Employees Table`
+            );
+          }
+        );
+        start();
+      });
+  });
 };
 
 //REMOVE EMPLOYEE
 const dropEmployee = () => {
-  inquirer
-    .prompt([
-      {
-        message: "What Employee would you like to remove?",
-        choices: companyList,
-        name: "employee",
-      },
-    ])
-    .then((data) => {
-      connection.query(
-        "drop ? from employees",
-        { employee: data.employee },
-        (err, data) => {
-          console.log(`${data.employee} was removed from database`);
-        }
-      );
+  connection.query("select * from employees", (err, names) => {
+    let employeesArray = names.map((name) => {
+      return `${name.employeeId} ${name.first_name} ${name.last_name}`;
     });
+    inquirer
+      .prompt([
+        {
+          type: "list",
+          message: "What Employee would you like to remove?",
+          choices: employeesArray,
+          name: "employee",
+        },
+      ])
+      .then((data) => {
+        let dropId = data.employee.split(" ");
+        connection.query(
+          "delete from employees where employeeId = ?",
+          {
+            employeeId: dropId[0],
+          },
+          (err, data) => {
+            console.log(`${dropId[1]} ${dropId[2]} was removed from database`);
+          }
+        );
+        // console.log(parseInt(dropId[0]));
+        start();
+      });
+  });
 };
 
 //UPDATE EMPLOYEE
 const updateEmployee = () => {
-  // connection.query("select * from employees", (err, names) => {
-  //   let newArray = names.map((name) => {
-  //     return name.first_name + " " + name.last_name;
-  //   });
-  //   console.log(newArray);
-  // });
-  inquirer
-    .prompt([
-      {
-        message: "What Employee would you like to update?",
-        // choices: employeesArray,
-        name: "employee",
-      },
-      {
-        message: "What would you like to update on this Employee",
-        choices: ["Name", "Department", "Manager", "Salary"],
-        name: "action",
-        validate: confirmUpdate,
-      },
-    ])
-    .then((data) => {
-      switch (data.action) {
-        case "Name":
-          return updateName();
-        case "Department":
-          return updateDepartment();
-        case "Manager":
-          return updateManager();
-        case "Salary":
-          return updateSalary();
-      }
+  connection.query("select * from employees", (err, names) => {
+    let employeesArray = names.map((name) => {
+      return `${name.employeeId} ${name.first_name} ${name.last_name}`;
     });
+    inquirer
+      .prompt([
+        {
+          type: "list",
+          message: "What Employee would you like to update?",
+          choices: employeesArray,
+          name: "employee",
+        },
+        {
+          type: "list",
+          message: "What would you like to update on this Employee",
+          choices: ["Name", "Department", "Manager", "Salary"],
+          name: "action",
+          validate: confirmUpdate,
+        },
+      ])
+      .then((data) => {
+        let updateEmp = data.employee.split(" ");
+        switch (data.action) {
+          case "Name":
+            return updateName();
+          case "Department":
+            return updateDepartment();
+          case "Manager":
+            return updateManager(updateEmp[0]);
+          case "Salary":
+            return updateSalary();
+        }
+      });
+    // console.log(newArray);
+  });
 };
 
 const updateName = () => {
@@ -234,26 +248,38 @@ const updateName = () => {
     .then((data) => {
       connection.query("update employees set ? where employeeId = ?", [
         { first_name: data.firstName, last_name: data.lastName },
-        { employeeId: data.employeeId },
+        { employeeId: data.employee.split(" ") },
       ]);
     });
 };
 
 const updateManager = () => {
-  inquirer
-    .prompt([
-      {
-        message: "Who is the Employee's new Manager?",
-        type: "list",
-        choices: managersArray,
-        name: "action",
-      },
-    ])
-    .then((data) => {
-      if (data.action === "Add Manager") {
-        insertEmployee();
-      }
+  connection.query("select * from employees", (err, names) => {
+    let managersArray = names.map((name) => {
+      return `${name.employeeId} ${name.first_name} ${name.last_name}`;
     });
+
+    inquirer
+      .prompt([
+        {
+          message: "Who is the Employee's new Manager?",
+          type: "list",
+          choices: managersArray,
+          name: "manager",
+        },
+      ])
+      .then((data) => {
+        console.log(data);
+        let managerId = data.manager.split(" ");
+        if (data.manager === "Add Manager") {
+          insertEmployee();
+        }
+        // connection.query("update employee set ? where ? ",{managerId_FK: managerId[0], employeeId = data.employee.spilt(" ")})
+        console.log(managerId[0]);
+
+        console.log(updateEmp[0]);
+      });
+  });
 };
 
 //// WRITE UPDATE FUNCTIONS \\\\\
@@ -292,8 +318,9 @@ connection.query("select * from employees", (err, names) => {
 });
 
 //// MANAGER QUERY \\\\
-let managerQuery = []
-let query = "select first_name, last_name from employee where managerId_FK is null;";
+let managerQuery = [];
+let query =
+  "select first_name, last_name from employee where managerId_FK is null;";
 
 // connection.query("select first_name, last_name from employee where managerId_FK is null;", (err, names) => {
 //   if (err) throw err;
