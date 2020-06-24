@@ -65,6 +65,18 @@ value("Accountant"),("Account Manager"),
 -- ADDING LIST OF EMPLOYEE FOR STARTER CODE AND TESTING
 insert into employees 
 set first_name = "John", last_name = "Smith", roleId_FK = 1;
+insert into employees 
+set first_name = "Anon", last_name = "Wayne", roleId_FK = 2, managerId_FK = 1;
+insert into employees 
+set first_name = "Blake", last_name = "Taylor", roleId_FK = 3;
+insert into employees 
+set first_name = "Anh", last_name = "Tai", roleId_FK = 4;
+insert into employees 
+set first_name = "Charlie", last_name = "Thomas", roleId_FK = 5, managerId_FK = 4;
+insert into employees 
+set first_name = "Jane", last_name = "Mondie", roleId_FK = 6;
+insert into employees 
+set first_name = "Pete", last_name = "Lee", roleId_FK = 7, managerId_FK = 6;
 
 -- JOINING ALL TABLES THAT CONTAIN VALUES(INNER JOIN)
 select * from employees
