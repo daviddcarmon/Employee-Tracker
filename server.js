@@ -4,6 +4,7 @@ const express = require("express");
 const util = require("util");
 const fs = require("fs");
 const { resolveAny } = require("dns");
+const { allowedNodeEnvironmentFlags } = require("process");
 const writeFileAsync = util.promisify(fs.writeFile);
 
 const connection = mysql.createConnection({
@@ -69,14 +70,17 @@ const start = () => {
 ///VIEW ALL EMPLOYEES\\\\
 /////TESTED WORKING\\\\\\\
 const allEmployees = () => {
-  connection.query("SELECT * FROM employees", (err, data) => {
-    if (err) {
-      console.log(`Function allEmployees Not Working!!! Contact programmer`);
+  connection.query(
+    "select first_name as First, last_name as Last, department, title, salary from employees join role on employees.roleID_FK = role.roleId left join department on role.departmentId_FK = department.departmentID",
+    (err, data) => {
+      if (err) {
+        console.log(`Function allEmployees Not Working!!! Contact programmer`);
+      }
+      // data.send(employees);
+      console.table(data);
+      start();
     }
-    // data.send(employees);
-    console.table(data);
-    start();
-  });
+  );
 };
 
 ///VIEW BY DEPARTMENT\\\\
@@ -422,6 +426,8 @@ const updateSalary = (employeeId) => {
 };
 
 //// WRITE UPDATE FUNCTIONS \\\\\
+// addRole()
+// addDepartment()
 
 // addManager() - line 155
 const addManager = async (role) => {
