@@ -107,7 +107,7 @@ const byDepartment = () => {
         .then((data) => {
           let departmentId = data.department.split(" ");
           connection.query(
-            "select first_name, last_name, department, title from employees join role on employees.roleID_FK = role.roleId left join department on role.departmentId_FK = department.departmentID where department.departmentId = ?;",
+            "select first_name as First, last_name as Last, department, title from employees join role on employees.roleID_FK = role.roleId left join department on role.departmentId_FK = department.departmentID where department.departmentId = ?;",
             [departmentId[0]],
             (err, data) => {
               {
@@ -137,7 +137,7 @@ const byManager = () => {
         console.log(`Function byManager Not Working! Contact programmer.`);
       }
       // console.table(data);
-      console.log(managersArray);
+      // console.log(managersArray);
       inquirer
         .prompt([
           {
@@ -150,7 +150,7 @@ const byManager = () => {
         .then((data) => {
           let managerId = data.manager.split(" ");
           connection.query(
-            "select first_name, last_name, department, title from employees join role on employees.roleID_FK = role.roleId left join department on role.departmentId_FK = department.departmentID where managerId_FK = ?;",
+            "select first_name as First, last_name as Last, department, title from employees join role on employees.roleID_FK = role.roleId left join department on role.departmentId_FK = department.departmentID where managerId_FK = ?;",
             [managerId[0]],
             (err, data) => {
               if (err) {
