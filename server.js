@@ -1,10 +1,8 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql");
 const express = require("express");
-const Employee = require("../Employee-Registration/lib/Employee");
 const util = require("util");
 const fs = require("fs");
-const { resolveAny } = require("dns");
 const writeFileAsync = util.promisify(fs.writeFile);
 
 const connection = mysql.createConnection({
@@ -194,7 +192,7 @@ const dropEmployee = () => {
 
 //UPDATE EMPLOYEE\\
 ///// NEED FIX \\\\\
-const updateEmployee = () => {
+const updateEmployee = (userid) => {
   connection.query("select * from employees", (err, names) => {
     let employeesArray = names.map((name) => {
       return `${name.employeeId} ${name.first_name} ${name.last_name}`;
@@ -217,6 +215,7 @@ const updateEmployee = () => {
       ])
       .then((data) => {
         let updateEmp = data.employee.split(" ");
+        console.log(data);
         switch (data.action) {
           case "Name":
             return updateName();
@@ -257,12 +256,14 @@ const updateName = () => {
 
 ///// NEED FIX \\\\\
 //LOSE EMPLOYEE ID\\\
-const updateManager = () => {
+const updateManager = (userid) => {
+  console.log(userid)
   connection.query("select * from employees", (err, names) => {
+    
     let managersArray = names.map((name) => {
       return `${name.employeeId} ${name.first_name} ${name.last_name}`;
     });
-    let newManager = [...managersArray, "Add Manager"]
+    let newManager = [...managersArray, "Add Manager"];
     inquirer
       .prompt([
         {
