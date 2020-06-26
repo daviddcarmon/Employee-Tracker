@@ -33,6 +33,8 @@ const start = () => {
           "View ALL Employees by Manager",
           "View ALL Employees by Departments",
           "Add Employee",
+          "Add Department",
+          "Add Role",
           "Remove Employee",
           "Update Employee",
           // "Update Employee Role",
@@ -52,6 +54,10 @@ const start = () => {
           return byManager();
         case "Add Employee":
           return insertEmployee();
+        case "Add Department":
+          return insertDepartment();
+        case "Add Role":
+          return insertRole();
         case "Remove Employee":
           return dropEmployee();
         case "Update Employee":
@@ -220,6 +226,76 @@ const insertEmployee = () => {
             console.log(
               `${data.first_name} ${data.last_name} was added to Employees Table`
             );
+          }
+        );
+        start();
+      });
+  });
+};
+
+///// ADD DEPARTMENT \\\\
+///// TESTED WORKING \\\\\
+const insertDepartment = () => {
+  connection.query("select roleId, title from role;", (err) => {
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          message: "What's the name of the new department?",
+          name: "department",
+          validate: confirmEmpty,
+        },
+      ])
+      .then((data) => {
+        connection.query(
+          "insert into department set ?",
+          {
+            department: data.department,
+          },
+          (err, data) => {
+            if (err) {
+              console.log(`Function Not Working! FIX!!!!!`);
+            }
+            console.log(`${data.department} was added to Department Table`);
+          }
+        );
+        start();
+      });
+  });
+};
+
+////// ADD ROLE \\\\\
+/// TESTED WORKING \\\
+const insertRole = () => {
+  connection.query("select roleId, title from role;", (err, data) => {
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          message: "What's the name of the new role?",
+          name: "role",
+          validate: confirmEmpty,
+        },
+        {
+          type: "input",
+          message: "What's the base salary for this role?",
+          name: "salary",
+          validate: confirmNumber,
+        },
+      ])
+      .then((data) => {
+        console.log(data.role);
+        connection.query(
+          "insert into role set ?",
+          {
+            title: data.role,
+            salary:data.salary
+          },
+          (err, data) => {
+            if (err) {
+              console.log(`Function Not Working! FIX!!!!!`);
+            }
+            console.log(`${data.role} was added to role Table`);
           }
         );
         start();
