@@ -218,11 +218,18 @@ const insertEmployee = () => {
       ])
       .then((data) => {
         let role = data.role.split(" ");
+        function capitalize(string) {
+          return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        let sanOne = data.first_name.toLowerCase()
+        let sanTwo = data.last_name.toLowerCase()
+        let first = capitalize(sanOne);
+        let last = capitalize(sanTwo)
         connection.query(
           "insert into employees set ?",
           {
-            first_name: data.first_name,
-            last_name: data.last_name,
+            first_name: first,
+            last_name: last,
             roleId_FK: parseInt(role[0]), /// need to be the array key not the string roleId_FK: data.role,
           },
           (err, data) => {
@@ -253,16 +260,21 @@ const insertDepartment = () => {
         },
       ])
       .then((data) => {
+        function capitalize(string) {
+          return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        let sanOne = data.department.toLowerCase()
+        let department = capitalize(sanOne);
         connection.query(
           "insert into department set ?",
           {
-            department: data.department,
+            department: department,
           },
           (err, data) => {
             if (err) {
               console.log(`Function Not Working! FIX!!!!!`);
             }
-            console.log(`${data.department} was added to Department Table`);
+            console.log(`${department} was added to Department Table`);
           }
         );
         start();
@@ -290,11 +302,16 @@ const insertRole = () => {
         },
       ])
       .then((data) => {
-        console.log(data.role);
+        // console.log(data.role);
+        function capitalize(string) {
+          return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        let sanOne = data.role.toLowerCase()
+        let role = capitalize(sanOne);
         connection.query(
           "insert into role set ?",
           {
-            title: data.role,
+            title: role,
             salary: data.salary,
           },
           (err, data) => {
