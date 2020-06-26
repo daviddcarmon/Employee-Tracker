@@ -35,10 +35,12 @@ const start = () => {
           "Add Employee",
           "Add Department",
           "Add Role",
-          "Remove Employee",
           "Update Employee",
           // "Update Employee Role",
           // "Update Employee Manager",
+          "Remove Employee",
+          "Remove Department",
+          "Remove Role",
           "Exit",
         ],
         name: "action",
@@ -58,14 +60,18 @@ const start = () => {
           return insertDepartment();
         case "Add Role":
           return insertRole();
-        case "Remove Employee":
-          return dropEmployee();
         case "Update Employee":
           return updateEmployee();
         case "Update Employee Role":
           return updateRole();
         case "Update Employee Manager":
           return updateManager();
+        case "Remove Employee":
+          return dropEmployee();
+        case "Remove Department":
+          return dropDepartment();
+        case "Remove Role":
+          return dropRole();
         default:
           return connection.end();
       }
@@ -289,7 +295,7 @@ const insertRole = () => {
           "insert into role set ?",
           {
             title: data.role,
-            salary:data.salary
+            salary: data.salary,
           },
           (err, data) => {
             if (err) {
@@ -331,6 +337,78 @@ const dropEmployee = () => {
               console.log(`Function Not Working! FIX!!!!!`);
             }
             console.log(`${dropId[1]} ${dropId[2]} was removed from database`);
+          }
+        );
+        // console.log(parseInt(dropId[0]));
+        start();
+      });
+  });
+};
+
+// REMOVE department \\
+/// TESTED WORKING \\\\\
+const dropDepartment = () => {
+  connection.query("select * from department", (err, names) => {
+    let departmentsArray = names.map((name) => {
+      return `${name.departmentId} ${name.department}`;
+    });
+    inquirer
+      .prompt([
+        {
+          type: "list",
+          message: "What department would you like to remove?",
+          choices: departmentsArray,
+          name: "department",
+        },
+      ])
+      .then((data) => {
+        let dropId = data.department.split(" ");
+        connection.query(
+          "delete from department where ?",
+          {
+            departmentId: parseInt(dropId[0]),
+          },
+          (err, data) => {
+            if (err) {
+              console.log(`Function Not Working! FIX!!!!!`);
+            }
+            console.log(`${dropId[1]}was removed from database`);
+          }
+        );
+        // console.log(parseInt(dropId[0]));
+        start();
+      });
+  });
+};
+
+/// REMOVE ROLE \\\\
+/// TESTED WORKING \\\
+const dropRole = () => {
+  connection.query("select * from role", (err, names) => {
+    let rolesArray = names.map((name) => {
+      return `${name.roleId} ${name.title}`;
+    });
+    inquirer
+      .prompt([
+        {
+          type: "list",
+          message: "What role would you like to remove?",
+          choices: rolesArray,
+          name: "role",
+        },
+      ])
+      .then((data) => {
+        let dropId = data.role.split(" ");
+        connection.query(
+          "delete from role where ?",
+          {
+            roleId: parseInt(dropId[0]),
+          },
+          (err, data) => {
+            if (err) {
+              console.log(`Function dropRole Not Working! FIX!!!!!`);
+            }
+            console.log(`${dropId[1]} was removed from database`);
           }
         );
         // console.log(parseInt(dropId[0]));
@@ -499,6 +577,7 @@ const updateSalary = (employeeId) => {
         "update role join employees on role.roleId = employees.roleId_FK set role.salary = ?  where employees.employeeId = ?;",
         [data.salary, employeeId]
       );
+      start();
     });
 };
 
