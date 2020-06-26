@@ -364,6 +364,7 @@ const updateDepartment = (employeeId) => {
                 `Function updateDepartment Not Working!!! Contact programmer.`
               );
             }
+            start();
           }
         );
       });
